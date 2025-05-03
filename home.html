@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous" />
+  <style>
+    #form .btn {
+      padding: 10px 0;
+    }
+
+    .list-group-item {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .list-group-item input {
+      border: none;
+      outline: none;
+    }
+
+    #add-btn {
+      width: 25%;
+    }
+
+    .custom-width {
+      width: 50%;
+    }
+
+    input {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    @media screen and (max-width: 890px) {
+      .list-group-item {
+        display: flex;
+        flex-direction: column;
+        row-gap: 8px;
+      }
+
+      .list-group-item button {
+        padding: 3px;
+      }
+
+      .list-group-item input {
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .container-fluid {
+        display: flex;
+        flex-direction: column;
+      }
+
+      #form {
+        display: flex;
+        flex-direction: column;
+      }
+
+      #form #add-btn {
+        width: 100%;
+        padding: 0;
+      }
+
+      .custom-width {
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-secondary">
+  <nav class="navbar bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand">Todo List App</a>
+      <div class="d-flex align-items-center column-gap-lg-5 column-gap-3 mt-2">
+        <p class="mb-0" id="userName"></p>
+        <button type="button" class="btn btn-success" id="logout-btn">
+          Log out
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="d-flex justify-content-center mt-5 bg-">
+    <div class="shadow p-2 p-lg-5 mb-5 bg-body-tertiary rounded custom-width">
+      <h1 class="h3 mb-5 fw-normal">Todo List App</h1>
+      <form id="form" class="d-flex align-items-center row-gap-4 column-gap-3">
+        <div class="form-floating w-100">
+          <input type="text" class="form-control py-0" id="todoInput" placeholder="Your todos..." required />
+          <label for="todo-input">Your todos...</label>
+        </div>
+
+        <button id="add-btn" class="btn btn-primary fs-5" type="submit">
+          Add
+        </button>
+      </form>
+
+      <ul class="list-group mt-3 d-flex flex-column-reverse"></ul>
+    </div>
+  </main>
+
+  <script src="./js/home.js"></script>
+</body>
+
+</html>
