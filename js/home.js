@@ -48,7 +48,6 @@ form.addEventListener("submit", async (event) => {
   const data = await response.json();
 
   if (data.success) {
-    alert(data.message);
     currentTodos.push(data.todo);
     renderTodos();
   }
