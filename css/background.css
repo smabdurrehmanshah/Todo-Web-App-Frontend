@@ -1,0 +1,21 @@
+body {
+    background: linear-gradient(270deg, #3a0ca3, #6e79c4, #414175);
+    background-size: 400% 400%;
+    animation: gradientMove 30s ease infinite;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* Animation */
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}

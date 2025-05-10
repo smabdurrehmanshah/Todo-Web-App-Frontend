@@ -10,23 +10,22 @@ let currentTodos = [];
 
 (async function getTodos() {
   try {
-    const response = await fetch(`https://todo-web-app-backend.vercel.app/api/todoApp/getTodos?userId=${currentUser.User_ID}`);
+    const response = await fetch(
+      `https://todo-web-app-backend.vercel.app/api/todoApp/getTodos?userId=${currentUser.User_ID}`
+    );
     const data = await response.json();
-  
+
     if (data.success) {
       currentTodos = [...data.todos];
       renderTodos();
-    }
-    else {
+    } else {
       alert(data.message);
     }
-  }
-  catch (error) {
-    console.log('Error: ', error);
-    alert('Something went wrong');
+  } catch (error) {
+    console.log("Error: ", error);
+    alert("Something went wrong");
   }
 })();
-
 
 const form = document.getElementById("form");
 
@@ -34,38 +33,48 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const todo = {
     todoText: event.target.todoInput.value.trim(),
-    reference: currentUser.User_ID
+    reference: currentUser.User_ID,
   };
 
-  const response = await fetch('https://todo-web-app-backend.vercel.app/api/todoApp/addTodo', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(todo)
-  });
+  const response = await fetch(
+    "https://todo-web-app-backend.vercel.app/api/todoApp/addTodo",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(todo),
+    }
+  );
 
   const data = await response.json();
 
   if (data.success) {
     currentTodos.push(data.todo);
     renderTodos();
-  }
-  else {
+  } else {
     alert(data.message);
   }
 
   event.target.reset();
 });
 
-
 async function renderTodos() {
   const ulElement = document.querySelector(".list-group");
   ulElement.innerHTML = "";
-  
-  currentTodos.forEach(item => {
+
+  currentTodos.forEach((item) => {
+    const iconClass = item.IsCompleted
+      ? "fa-solid fa-circle-check text-success fs-4"
+      : "fa-regular fa-circle text-secondary fs-4";
+    const textDecoration = item.IsCompleted ? "line-through" : "none";
+    const textColor = item.IsCompleted ? "grey" : "#545454";
+
     ulElement.innerHTML += ` <li class="list-group-item mb-2">
-                              <input class="todo-input" type="text" value="${item.Todo}" disabled>
+                              <div class="first-div d-flex align-items-center column-gap-2">
+                                <i role="button" class="${iconClass}"></i>
+                                <input class="w-100 todo-input" type="text" value="${item.Todo}" style="text-decoration: ${textDecoration}; color: ${textColor}" disabled>
+                              </div>
                               <div>
                                 <button class="btn btn-success edit-btn">Edit</button>
                                 <button class="btn btn-danger delete-btn">Delete</button>
@@ -73,27 +82,50 @@ async function renderTodos() {
                             </li>`;
   });
 
-  // DELETE TODO 
-  
-  const deleteBtn = document.querySelectorAll(".delete-btn");
+  // Todo Completion Status
 
-  deleteBtn.forEach((button, index) => {
-    button.addEventListener("click", async () => {
+  const checkboxes = document.querySelectorAll(".first-div > i");
+  const todoInputs = document.querySelectorAll(".first-div > input");
+
+  checkboxes.forEach((checkbox, index) => {
+    checkbox.addEventListener("click", async () => {
       const todoId = currentTodos[index].Todo_ID;
-  
+      const input = todoInputs[index];
+
+      let IsCompleted = false;
+
+      if (checkbox.classList.contains("fa-regular")) {
+        checkbox.className = "fa-solid fa-circle-check text-success fs-4";
+        input.style.textDecoration = "line-through";
+        input.style.color = "grey";
+        IsCompleted = true;
+      } else {
+        checkbox.className = "fa-regular fa-circle text-secondary fs-4";
+        input.style.textDecoration = "none";
+        input.style.color = "#545454";
+        IsCompleted = false;
+      }
+
       try {
-        const response = await fetch('https://todo-web-app-backend.vercel.app/api/todoApp/deleteTodo', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({todoId})
-        });
-  
+        const response = await fetch(
+          "https://todo-web-app-backend.vercel.app/api/todoApp/editTodo",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              todoId,
+              newTodoText: input.value,
+              IsCompleted,
+            }),
+          });
+
         const data = await response.json();
-  
-        if (data.success) {
-          currentTodos.splice(index,1);
+
+        if(data.success) {
+          currentTodos[index].Todo = data.updatedTodo.newTodoText;
+          currentTodos[index].IsCompleted = data.updatedTodo.IsCompleted;
           renderTodos();
         }
         else {
@@ -102,12 +134,46 @@ async function renderTodos() {
       }
       catch (error) {
         console.log('Error: ', error);
-        alert('Something went wrong while deleting the todo');
       }
     });
   });
 
-  // EDIT TODO 
+  // DELETE TODO
+
+  const deleteBtn = document.querySelectorAll(".delete-btn");
+
+  deleteBtn.forEach((button, index) => {
+    button.addEventListener("click", async () => {
+      const todoId = currentTodos[index].Todo_ID;
+
+      try {
+        const response = await fetch(
+          "https://todo-web-app-backend.vercel.app/api/todoApp/deleteTodo",
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ todoId }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          currentTodos.splice(index, 1);
+          renderTodos();
+        } else {
+          alert(data.message);
+        }
+      } catch (error) {
+        console.log("Error: ", error);
+        alert("Something went wrong while deleting the todo");
+      }
+    });
+  });
+
+  // EDIT TODO
 
   const editButtons = document.querySelectorAll(".edit-btn");
   const inputFields = document.querySelectorAll(".todo-input");
@@ -125,31 +191,33 @@ async function renderTodos() {
         inputField.disabled = true;
 
         try {
-          const response = await fetch('https://todo-web-app-backend.vercel.app/api/todoApp/editTodo', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              todoId: todoId,
-              newTodoText: inputField.value
-            })
-          });
+          const response = await fetch(
+            "https://todo-web-app-backend.vercel.app/api/todoApp/editTodo",
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                todoId: todoId,
+                newTodoText: inputField.value,
+                IsCompleted: 0,
+              }),
+            }
+          );
 
           const data = await response.json();
-        
-          if(data.success) {
-            currentTodos[index].Todo = data.updatedTodoText;
-            editBtn.innerText = 'Edit';
+
+          if (data.success) {
+            currentTodos[index].Todo = data.updatedTodo.newTodoText;
+            editBtn.innerText = "Edit";
             renderTodos();
-          }
-          else {
+          } else {
             alert(data.message);
           }
-        }
-        catch (error) {
-          console.log('Error: ', error);
-          alert('Something went wrong while editing the todo');
+        } catch (error) {
+          console.log("Error: ", error);
+          alert("Something went wrong while editing the todo");
         }
       }
     });
